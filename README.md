@@ -1,2 +1,3 @@
-# pde-identification
-identify PDE from scarce sampled data
+# PDE Identification
+
+Repository for **PDE Identification** with scarce solution data.  
