@@ -15,3 +15,7 @@ apt-get install libfftw3-dev
 python runtests.py
 ```
 
+# Examples
+
+![Example Solutions](docs/example.png)
+

@@ -14,7 +14,7 @@ class EvolutionDiffEq:
 
     $$ \\partial_t u = L u. $$
 
-    The domain is fixed as [0, 2 * pi] and the derivatives are evaluated by fast Fourier transforms.
+    L is real-valued. The domain is fixed as [0, 2 * pi] and the derivatives are evaluated by fast Fourier transforms.
 
     The function $Lu$ is supplied in mathematica form. Examples are:
 

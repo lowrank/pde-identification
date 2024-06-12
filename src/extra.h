@@ -132,6 +132,14 @@ Vector pow(const Vector& x, scalar_t n) {
     return res;
 }
 
+Vector fabs(const Vector& x) {
+    Vector res(x._row);
+    for (int i = 0; i < x._row; i++) {
+        res(i) = fabs(x(i));
+    }
+    return res;
+}
+
 Vector D(const Vector& x) {
     Vector res(x._row);
     Vector out(x._row);
