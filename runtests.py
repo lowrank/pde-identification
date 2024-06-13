@@ -12,7 +12,7 @@ Note that the x-axis is fixed as [0, 2 * pi], common initial condition.
 """
 # models
 models = {
-    'KdV-Burgers': EvolutionDiffEq('0.25 * D[D[u]] - u * D[u] - (1.0/6) * D[D[D[u]]]'),
+    'KdV-Burgers': EvolutionDiffEq('0.5 * D[D[u]] - u * D[u] - (1.0/6) * D[D[D[u]]]'),
     'Kuramoto-Sivashinsky': EvolutionDiffEq('- D[D[u]] - 0.05 * D[D[D[D[u]]]] - 0.5 * D[u] * D[u]'),
     'Ginzburg-Landau': EvolutionDiffEq('D[D[u]] - u*u*u + u'),
     'FitzHugh–Nagumo': EvolutionDiffEq('D[D[u]] + u * u  - u*u*u'),
@@ -27,7 +27,7 @@ models = {
 dt, T = 0.001, 1
 t_span = np.arange(dt, T + dt, dt)
 x_axis = np.linspace(0, 2 * np.pi, 513)[0:-1]
-y0 = 0.5 + 0.4 * np.sin(x_axis) + 0.2 * np.sin(2 * x_axis) + 0.04 * np.cos(3 * x_axis)
+y0 = 0.5 + 0.4 * np.sin(x_axis) + 0.2 * np.sin(2 * x_axis) + 0.1 * np.cos(3 * x_axis) + 0.02 * np.cos(4 * x_axis)
 
 # plots
 row = int(np.sqrt(len(models)))
