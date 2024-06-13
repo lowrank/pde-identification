@@ -24,7 +24,7 @@ jobs:
       - name: Install packages
         run: |
           sudo apt-get install build-essential
-          sudo apt-get install libfftw3
+          sudo apt-get install libfftw3-dev
       - name: Run Test
         run: |
           python runtests.py
