@@ -1,6 +1,9 @@
 # PDE Identification
 
-Repository for **PDE Identification** with scarce solution data.  
+Repository for **PDE Identification** with partial solution data.
+
+- [x] Solution generation
+- [ ] Identification
 
 ## Experiment Requirements (Ubuntu)
 ```bash
