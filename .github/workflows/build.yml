@@ -23,8 +23,8 @@ jobs:
           pip install -r requirements.txt
       - name: Install packages
         run: |
-          apt-get install build-essential
-          apt-get install libfftw3
+          sudo apt-get install build-essential
+          sudo apt-get install libfftw3
       - name: Run Test
         run: |
           python runtests.py
