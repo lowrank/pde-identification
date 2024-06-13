@@ -12,15 +12,15 @@ Note that the x-axis is fixed as [0, 2 * pi], common initial condition.
 """
 # models
 models = {
-    'KdV-Burgers': EvolutionDiffEq('0.5 * D[D[u]] - u * D[u] - (1.0/6) * D[D[D[u]]]'),
+    'KdV-Burgers': EvolutionDiffEq('0.25 * D[D[u]] - u * D[u] - (1.0/6) * D[D[D[u]]]'),
     'Kuramoto-Sivashinsky': EvolutionDiffEq('- D[D[u]] - 0.05 * D[D[D[D[u]]]] - 0.5 * D[u] * D[u]'),
     'Ginzburg-Landau': EvolutionDiffEq('D[D[u]] - u*u*u + u'),
     'FitzHugh–Nagumo': EvolutionDiffEq('D[D[u]] + u * u  - u*u*u'),
     'Fisher-KPP': EvolutionDiffEq('D[D[u]] + u - u*u'),
     'Zeldovich–Frank-Kamenetskii': EvolutionDiffEq('D[D[u]] + 0.5 * 20^2 * Exp[-20] * (u - u * u)  * Exp[20 * u]'),
-    'Sine-Gordon': EvolutionDiffEq('D[D[u]] + 2 * Sin[Sqrt[8*Pi] * u]'),
-    'Swift-Hohenberg': EvolutionDiffEq('u - (2 * D[D[u]] + D[D[D[D[u]]]])'),
-    'Ekonal': EvolutionDiffEq('0.01 * D[D[u]] + Abs[D[u]]')
+    'Sine-Gordon': EvolutionDiffEq('0.25 * D[D[u]] + Sin[Sqrt[8*Pi] * u]'),
+    'Swift-Hohenberg': EvolutionDiffEq('u - u * u * u - (2 * D[D[u]] + D[D[D[D[u]]]])'),
+    'Eikonal': EvolutionDiffEq('0.25 * D[D[u]] + Abs[D[u]]')
 }
 
 # Initial condition and domain parameters
