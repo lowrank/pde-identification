@@ -8,6 +8,7 @@ Repository for **PDE Identification** with partial solution data.
 ## Experiment Requirements (Ubuntu)
 ```bash
 pip install -r requirements.txt
+python setup.py build_ext -b utilities
 
 apt-get install build-essential
 apt-get install libfftw3-dev
