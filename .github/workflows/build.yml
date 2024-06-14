@@ -29,3 +29,6 @@ jobs:
       - name: Run Test
         run: |
           python runtests.py
+      - name: Unit Test
+        run: |
+          python -m unittest discover -s tests -p '*test.py'

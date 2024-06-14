@@ -54,6 +54,7 @@ class FunctionRepr(object):
         pass
 
 
+# modified scipy's source code.
 def make_design_matrix(x, t, k, nu, extrapolate):
     """
 

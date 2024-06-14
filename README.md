@@ -19,6 +19,10 @@ apt-get install libfftw3-dev
 python runtests.py
 ```
 
+```bash
+python -m unittest discover -s tests -p '*test.py'
+```
+
 # Examples
 
 ![Example Solutions](docs/example.png)

@@ -1,6 +1,7 @@
 import unittest
 
 import numpy as np
+from scipy.interpolate import BSpline
 
 from utilities.function_repr import *
 
