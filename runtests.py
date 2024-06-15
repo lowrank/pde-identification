@@ -24,8 +24,8 @@ models = {
     'Porous Media': EvolutionDiffEq(' 3 * u * u *  D[D[u]] + 6 * u * D[u] * D[u]'),
     'Nonlinear Schrodinger': EvolutionDiffEq('-0.5 * D[D[v]] + v*(u*u+v*v)',
                                              '0.5 * D[D[u]]-(u*u+v*v)*u'),
-    'KdV super': EvolutionDiffEq('0.25 * D[D[u]] - u*D[u] - (1.0/6)*D[D[D[u]]] + 0.5 * v*D[D[v]]',
-                                 '0.25 * D[D[v]] + 0.5 * D[u]*v + u * D[v] - (4.0/6) *D[D[D[v]]]')
+    'Phi 4': EvolutionDiffEq('v',
+                             'D[D[u]] - u + u*u*u')
 }
 
 # Initial condition and domain parameters
