@@ -58,7 +58,7 @@ class EvolutionDiffEq:
         else:
             return self.base_repr_real.replace(Function('D'), lambda f_: Derivative(f_, x))
 
-    def eval(self, func_u: Function, func_v: Function = None) -> tuple[Any, Any] | Any:
+    def eval(self, func_u: Function, func_v: Function = None):
         """
         evaluate a specific function defined in variable 'x'.
 
