@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.sparse import csr_array
 
-from . import design_matrix
+from utilities import design_matrix
 
 """
 Function Representation class.
@@ -21,7 +21,7 @@ class FunctionRepr(object):
         self.linear = __supported__[basis_type] == 'linear'
 
     @classmethod
-    def _b_construct_design_matrix(cls, eval_pts, knots, degree, derivative=0, periodic=True):
+    def b_construct_design_matrix(cls, eval_pts, knots, degree, derivative=0, extrapolate=False):
         """
         Create the design matrix for B splines.
 
@@ -30,27 +30,31 @@ class FunctionRepr(object):
             knots: knot points coordinates
             degree: degree of B spline
             derivative: derivative order of B spline
-            periodic: whether the knots form a periodic domain
+            extrapolate: whether the knots form a periodic domain
 
         Returns:
-            sparse matrix of shape (num of eval_pts, num of basis)
+            sparse matrix of shape (num of eval_pts, knot number - (degree + 1))
         """
 
-        pass
+        if extrapolate == 'periodic':
+            return make_design_matrix(eval_pts, knots, degree, derivative, extrapolate='periodic')
+        else:
+            extrapolate_ = bool(extrapolate)
+            return make_design_matrix(eval_pts, knots, degree, derivative, extrapolate_)
 
     @classmethod
-    def _b_construct_null_space(cls, matrix=None):
+    def b_construct_null_space(cls, design_matrix=None):
         """
 
         Args:
-            matrix: rank-deficient matrix
+            design_matrix: design matrix of size (num of eval_pts, knot number - (degree + 1))
 
         Returns:
             null space matrix through QR decomposition.
         """
         pass
 
-    def _b_gen_function(self, coefficient):
+    def b_gen_function(self, coefficient):
         pass
 
 

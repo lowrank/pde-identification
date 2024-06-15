@@ -48,22 +48,16 @@ def generate_bsp_basis(grid_points: np.ndarray,
 
 class FuncReprTest(unittest.TestCase):
     def test_design_matrix(self):
+        b_spline_func = FunctionRepr(basis_type='b', dim=1)
+
         x = np.random.rand(500) * 2 * np.pi
-        k = 3
-        grid_num = 10
+        grid_num, k = 10, 3
         t = np.arange(-k, (grid_num + 1) * (k + 1)) * (2 * np.pi) / grid_num / (k + 1)
 
-        m_matrix = generate_bsp_basis(x, (0, 2 * np.pi), grid_num, k, 0)
-        n_matrix = make_design_matrix(x, t, k, 0, 'periodic')
-        self.assertEqual(True, np.allclose(m_matrix, n_matrix.todense(), rtol=1e-14))  # add assertion here
-
-        m_matrix = generate_bsp_basis(x, (0, 2 * np.pi), grid_num, k, 1)
-        n_matrix = make_design_matrix(x, t, k, 1, 'periodic')
-        self.assertEqual(True, np.allclose(m_matrix, n_matrix.todense(), rtol=1e-14))  # add assertion here
-
-        m_matrix = generate_bsp_basis(x, (0, 2 * np.pi), grid_num, k, 2)
-        n_matrix = make_design_matrix(x, t, k, 2, 'periodic')
-        self.assertEqual(True, np.allclose(m_matrix, n_matrix.todense(), rtol=1e-14))  # add assertion here
+        for i in range(3):
+            m_matrix = generate_bsp_basis(x, (0, 2 * np.pi), grid_num, k, i)
+            n_matrix = b_spline_func.b_construct_design_matrix(x, t, k, i, False)
+            self.assertEqual(True, np.allclose(m_matrix, n_matrix.todense(), rtol=1e-14))  # add assertion here
 
 
 if __name__ == '__main__':
