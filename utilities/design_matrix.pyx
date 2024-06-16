@@ -41,31 +41,31 @@ cdef inline int find_interval(const double[::1] t,
                        bint extrapolate) noexcept nogil:
 
 """
-    Find an interval such that t[interval] <= xval < t[interval+1].
+Find an interval such that t[interval] <= xval < t[interval+1].
 
-    Uses a linear search with locality, see fitpack's splev.
+Uses a linear search with locality, see fitpack's splev.
 
-    Parameters
-    ----------
-    t : ndarray, shape (nt,)
-        Knots
-    k : int
-        B-spline degree
-    xval : double
-        value to find the interval for
-    prev_l : int
-        interval where the previous value was located.
-        if unknown, use any value < k to start the search.
-    extrapolate : int
-        whether to return the last or the first interval if xval
-        is out of bounds.
+Parameters
+----------
+t : ndarray, shape (nt,)
+    Knots
+k : int
+    B-spline degree
+xval : double
+    value to find the interval for
+prev_l : int
+    interval where the previous value was located.
+    if unknown, use any value < k to start the search.
+extrapolate : int
+    whether to return the last or the first interval if xval
+    is out of bounds.
 
-    Returns
-    -------
-    interval : int
-        Suitable interval or -1 if xval was nan.
+Returns
+-------
+interval : int
+    Suitable interval or -1 if xval was nan.
 
-    """
+"""
     cdef:
         int l
         int n = t.shape[0] - k - 1
