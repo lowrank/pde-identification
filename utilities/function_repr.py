@@ -21,26 +21,29 @@ class FunctionRepr(object):
         self.linear = __supported__[basis_type] == 'linear'
 
     @classmethod
-    def b_construct_design_matrix(cls, eval_pts, knots, degree, derivative=0, extrapolate=False):
+    def b_construct_design_matrix(cls, eval_pts, knots, degree, derivative=0, extrapolate=False, periodic=False):
         """
         Create the design matrix for B splines.
 
         Args:
+
             eval_pts: point coordinates for evaluation
             knots: knot points coordinates
             degree: degree of B spline
             derivative: derivative order of B spline
-            extrapolate: whether the knots form a periodic domain
-
+            extrapolate: whether the knots form a periodic domain for extrapolation
+            periodic: whether the b-splines are periodic
         Returns:
             sparse matrix of shape (num of eval_pts, knot number - (degree + 1))
         """
-
-        if extrapolate == 'periodic':
-            return make_design_matrix(eval_pts, knots, degree, derivative, extrapolate='periodic')
+        b = make_design_matrix(eval_pts, knots, degree, derivative, extrapolate)
+        if not periodic:
+            return b
         else:
-            extrapolate_ = bool(extrapolate)
-            return make_design_matrix(eval_pts, knots, degree, derivative, extrapolate_)
+            b_full = b.todense()
+            for n in range(degree):
+                b_full[:, n] = b_full[:, n] + b_full[:, n - degree]
+            return csr_array(b_full[:, :-degree])
 
     @classmethod
     def b_construct_null_space(cls, design_matrix=None):
@@ -67,7 +70,7 @@ def make_design_matrix(x, t, k, nu, extrapolate):
         t: knots
         k: degree
         nu: derivative
-        extrapolate: bool or "periodic"
+        extrapolate: bool
 
     Returns:
         design matrix [ B^{(nu)}_i(x_k) ]_{k, i}
@@ -119,6 +122,10 @@ def make_design_matrix(x, t, k, nu, extrapolate):
     data, indices = design_matrix._make_design_matrix(
         x, t, k, nu, extrapolate, indices
     )
+
+    """
+    @possible improvement: use dense array for first/last k columns if the b splines are periodic.
+    """
     return csr_array(
         (data, indices, indptr),
         shape=(x.shape[0], t.shape[0] - k - 1)

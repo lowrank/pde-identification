@@ -1,6 +1,8 @@
 """
 Routines for evaluating and manipulating B-splines.
 
+Modified from scipy.
+
 """
 
 cimport numpy as cnp
@@ -37,7 +39,8 @@ cdef inline int find_interval(const double[::1] t,
                        double xval,
                        int prev_l,
                        bint extrapolate) noexcept nogil:
-    """
+
+"""
     Find an interval such that t[interval] <= xval < t[interval+1].
 
     Uses a linear search with locality, see fitpack's splev.
@@ -134,6 +137,7 @@ def _make_design_matrix(const double[::1] x,
         double[::1] data = np.zeros(n * (k + 1), dtype=float)
         double xval
     ind = k
+
     for i in range(n):
         xval = x[i]
 
