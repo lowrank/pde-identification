@@ -55,7 +55,13 @@ class FunctionRepr(object):
         Returns:
             null space matrix through QR decomposition.
         """
-        pass
+        if design_matrix.shape[0] < design_matrix.shape[1]:
+            """
+            The matrix is rank-deficient.
+            """
+            pass
+        else:
+            pass
 
     def b_gen_function(self, coefficient):
         pass
