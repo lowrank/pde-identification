@@ -59,6 +59,27 @@ class FuncReprTest(unittest.TestCase):
             n_matrix = b_spline_func.b_construct_design_matrix(x, t, k, i, False)
             self.assertEqual(True, np.allclose(m_matrix, n_matrix.todense(), rtol=1e-14))  # add assertion here
 
+    def test_projection(self):
+        x_ = np.linspace(0, 2 * np.pi, 33)[0:-1]
+        x_samples = np.linspace(0, 2 * np.pi, 513)[0:-1]
+        y_ = np.sin(3 * x_)
+        y_samples = np.sin(3 * x_samples)
+        k = 4
+        grid_num = 11
+        # (k+1) * grid_num + 2 * k + 1
+        t = np.arange(-k, (grid_num + 1) * (k + 1)) * (2 * np.pi) / grid_num / (k + 1)
+
+        func_space = FunctionRepr('b', 1)
+
+        sample_matrix = func_space.b_construct_design_matrix(x_samples, t, k, 0, False, True)
+        c = func_space.b_solve(x_, y_, t, k, True, True)
+        res = sample_matrix @ c
+        self.assertEqual(True, np.allclose(res, y_samples, atol=3e-3))
+
+        c = func_space.b_solve(x_, y_, t, k, True, False)
+        res = sample_matrix @ c
+        self.assertEqual(False, np.allclose(res, y_samples, atol=3e-2))
+
 
 if __name__ == '__main__':
     unittest.main()
