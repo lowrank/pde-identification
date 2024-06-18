@@ -1,6 +1,7 @@
 import numpy as np
+import scipy.linalg as la
 from scipy.sparse import csr_array
-
+from scipy.sparse.linalg import lsqr
 from utilities import design_matrix
 
 """
@@ -59,12 +60,25 @@ class FunctionRepr(object):
             """
             The matrix is rank-deficient.
             """
-            pass
+            [q_mat, r_mat] = la.qr(design_matrix.transpose(), mode='full')
+            return q_mat[:, r_mat.shape[1]:]
         else:
-            pass
+            return None
 
-    def b_gen_function(self, coefficient):
-        pass
+    @classmethod
+    def b_solve(cls, x_val, y_val, knots, degree, periodic, regularization=True, atol=1e-6, btol=1e-6):
+        design_matrix = cls.b_construct_design_matrix(x_val, knots, degree, 0, False, periodic).todense()
+        c1 = lsqr(design_matrix, y_val, atol=atol, btol=btol)[0]
+
+        if regularization:
+            null_space = cls.b_construct_null_space(design_matrix)
+            smooth_matrix = np.concatenate([
+                cls.b_construct_design_matrix(x_val, knots, degree, nu, False, periodic).todense()
+                for nu in range(1, degree)], axis=0)
+            c2 = lsqr(smooth_matrix @ null_space, -smooth_matrix @ c1, atol=atol, btol=btol)[0]
+            c1 += null_space @ c2
+
+        return c1
 
 
 # modified scipy's source code.
