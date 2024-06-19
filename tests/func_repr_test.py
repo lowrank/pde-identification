@@ -60,23 +60,27 @@ class FuncReprTest(unittest.TestCase):
             self.assertEqual(True, np.allclose(m_matrix, n_matrix.todense(), rtol=1e-14))  # add assertion here
 
     def test_projection(self):
-        x_ = np.linspace(0, 2 * np.pi, 33)[0:-1]
-        x_samples = np.linspace(0, 2 * np.pi, 513)[0:-1]
+        interval = [0, 2 * np.pi]
+        x_ = np.linspace(interval[0], interval[1], 33)[0:-1]
+        x_samples = np.linspace(interval[0], interval[1], 513)[0:-1]
         y_ = np.sin(3 * x_)
         y_samples = np.sin(3 * x_samples)
+        # degree
         k = 5
-        grid_num = 11
+        # knots in each interval
+        grid_num = 13
         # (k+1) * grid_num + 2 * k + 1
-        t = np.arange(-k, (grid_num + 1) * (k + 1)) * (2 * np.pi) / grid_num / (k + 1)
-
+        t = interval[0] + np.arange(-k, (grid_num + 1) * (k + 1)) * (interval[1] - interval[0]) / grid_num / (k + 1)
+        nt = len(t)
+        colloq = t[k:nt - k - 1]
         func_space = FunctionRepr('b', 1)
 
         sample_matrix = func_space.b_construct_design_matrix(x_samples, t, k, 0, False, True)
-        c = func_space.b_solve(x_, y_, t, k, True, True, x_samples)
+        c = func_space.b_solve(x_, y_, t, k, True, True, colloq)
         res = sample_matrix @ c
         self.assertEqual(True, np.allclose(res, y_samples, atol=1e-4))
 
-        c = func_space.b_solve(x_, y_, t, k, True, False, x_samples)
+        c = func_space.b_solve(x_, y_, t, k, True, False)
         res = sample_matrix @ c
         self.assertEqual(False, np.allclose(res, y_samples, atol=1e-2))
 

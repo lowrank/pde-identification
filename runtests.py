@@ -31,7 +31,7 @@ models = {
 # Initial condition and domain parameters
 dt, T = 0.001, 1
 t_span = np.arange(dt, T + dt, dt)
-x_axis = np.linspace(0, 2 * np.pi, 513)[0:-1]
+x_axis = np.linspace(0, 2 * np.pi, 1001)[0:-1]
 x_size = len(x_axis)
 y0 = 0.6 + 0.3 * np.sin(x_axis) + 0.15 * np.sin(2 * x_axis) + 0.1 * np.cos(3 * x_axis) + 0.02 * np.cos(4 * x_axis)
 
