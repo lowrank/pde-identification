@@ -66,14 +66,14 @@ class FunctionRepr(object):
             return None
 
     @classmethod
-    def b_solve(cls, x_val, y_val, knots, degree, periodic, regularization=True, atol=1e-6, btol=1e-6):
+    def b_solve(cls, x_val, y_val, knots, degree, periodic, regularization=True, colloq=None, atol=1e-6, btol=1e-6):
         design_matrix = cls.b_construct_design_matrix(x_val, knots, degree, 0, False, periodic).todense()
         c1 = lsqr(design_matrix, y_val, atol=atol, btol=btol)[0]
 
         if regularization:
             null_space = cls.b_construct_null_space(design_matrix)
             smooth_matrix = np.concatenate([
-                cls.b_construct_design_matrix(x_val, knots, degree, nu, False, periodic).todense()
+                cls.b_construct_design_matrix(colloq, knots, degree, nu, False, periodic).todense()
                 for nu in range(1, degree)], axis=0)
             c2 = lsqr(smooth_matrix @ null_space, -smooth_matrix @ c1, atol=atol, btol=btol)[0]
             c1 += null_space @ c2
@@ -139,7 +139,7 @@ def make_design_matrix(x, t, k, nu, extrapolate):
     indptr = np.arange(0, (n + 1) * (k + 1), k + 1, dtype=int_dtype)
 
     # indptr is not passed to Cython as it is already fully computed
-    data, indices = design_matrix._make_design_matrix(
+    data, indices = design_matrix.make_design_matrix(
         x, t, k, nu, extrapolate, indices
     )
 

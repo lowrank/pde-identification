@@ -64,7 +64,7 @@ class FuncReprTest(unittest.TestCase):
         x_samples = np.linspace(0, 2 * np.pi, 513)[0:-1]
         y_ = np.sin(3 * x_)
         y_samples = np.sin(3 * x_samples)
-        k = 4
+        k = 5
         grid_num = 11
         # (k+1) * grid_num + 2 * k + 1
         t = np.arange(-k, (grid_num + 1) * (k + 1)) * (2 * np.pi) / grid_num / (k + 1)
@@ -72,13 +72,13 @@ class FuncReprTest(unittest.TestCase):
         func_space = FunctionRepr('b', 1)
 
         sample_matrix = func_space.b_construct_design_matrix(x_samples, t, k, 0, False, True)
-        c = func_space.b_solve(x_, y_, t, k, True, True)
+        c = func_space.b_solve(x_, y_, t, k, True, True, x_samples)
         res = sample_matrix @ c
-        self.assertEqual(True, np.allclose(res, y_samples, atol=3e-3))
+        self.assertEqual(True, np.allclose(res, y_samples, atol=1e-4))
 
-        c = func_space.b_solve(x_, y_, t, k, True, False)
+        c = func_space.b_solve(x_, y_, t, k, True, False, x_samples)
         res = sample_matrix @ c
-        self.assertEqual(False, np.allclose(res, y_samples, atol=3e-2))
+        self.assertEqual(False, np.allclose(res, y_samples, atol=1e-2))
 
 
 if __name__ == '__main__':

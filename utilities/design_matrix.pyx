@@ -93,7 +93,7 @@ cdef inline int find_interval(const double[::1] t,
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-def _make_design_matrix(const double[::1] x,
+def make_design_matrix(const double[::1] x,
                         const double[::1] t,
                         int k,
                         int nu,
