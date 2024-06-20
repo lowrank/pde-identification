@@ -16,18 +16,16 @@ __supported__ = {'b': 'linear', 'w': 'linear', 'n': 'nonlinear'}
 
 
 class FunctionRepr(object):
-    def __init__(self, basis_type='b', dim=1):
+    def __init__(self, basis_type='b'):
         self.type = basis_type
-        self.dim = dim
         self.linear = __supported__[basis_type] == 'linear'
 
     @classmethod
-    def b_construct_design_matrix(cls, eval_pts, knots, degree, derivative=0, extrapolate=False, periodic=False):
+    def b_construct_1d_design_matrix(cls, eval_pts, knots, degree, derivative=0, extrapolate=False, periodic=False):
         """
         Create the design matrix for B splines.
 
         Args:
-
             eval_pts: point coordinates for evaluation
             knots: knot points coordinates
             degree: degree of B spline
@@ -53,6 +51,8 @@ class FunctionRepr(object):
         Args:
             design_matrix: design matrix of size (num of eval_pts, knot number - (degree + 1))
 
+            QR decomposition may be slow. This is a one-time cost.
+
         Returns:
             null space matrix through QR decomposition.
         """
@@ -66,19 +66,68 @@ class FunctionRepr(object):
             return None
 
     @classmethod
-    def b_solve(cls, x_val, y_val, knots, degree, periodic, regularization=True, colloq=None, atol=1e-6, btol=1e-6):
-        design_matrix = cls.b_construct_design_matrix(x_val, knots, degree, 0, False, periodic).todense()
-        c1 = lsqr(design_matrix, y_val, atol=atol, btol=btol)[0]
+    def b_1d_solve(cls, x_val, y_val, knots, degree, periodic, regularization=False, colloq=None, atol=1e-6, btol=1e-6):
+        """
 
+        Args:
+            x_val: evaluation points coordinates
+            y_val: values at evaluation points coordinates
+            knots: B spline knots coordinates
+            degree: degree of B spline
+            periodic: whether the b-splines are periodic
+            regularization: whether it uses regularization
+            colloq: collocation points coordinates
+            atol: stopping tolerance
+            btol: stopping tolerance
+
+            The tolerance definition are found at
+            [scipy.sparse.linalg.lsqr](https://docs.scipy.org/doc/scipy/reference/generated/scipy.sparse.linalg.lsqr.html)
+
+        Returns:
+            coefficient array of B spline basis.
+
+        """
+        design_matrix = cls.b_construct_1d_design_matrix(x_val, knots, degree, 0, False, periodic).todense()
+        c1 = lsqr(design_matrix, y_val, atol=atol, btol=btol)[0]
+        # regularization with derivative (degree + 1) // 2, the representer theorem implies the minimizer should be
+        # a combination of splines exactly.
         if regularization:
             null_space = cls.b_construct_null_space(design_matrix)
-            smooth_matrix = np.concatenate([
-                cls.b_construct_design_matrix(colloq, knots, degree, nu, False, periodic).todense()
-                for nu in range(1, degree)], axis=0)
+            smooth_matrix = cls.b_construct_1d_design_matrix(colloq, knots, degree, (degree + 1) // 2,
+                                                             False, periodic).todense()
             c2 = lsqr(smooth_matrix @ null_space, -smooth_matrix @ c1, atol=atol, btol=btol)[0]
             c1 += null_space @ c2
-
         return c1
+
+    @classmethod
+    def b_construct_nd_design_matrix(cls, eval_pts, knots, degree, derivative, extrapolate, periodic):
+        """
+
+        Args:
+
+            eval_pts: ndarray(dim, n), multidimensional point coordinates for evaluation
+            knots: List[List] knot points coordinates in each dimension
+            degree: List[int],  degree of B spline in each dimension
+            derivative: List[int],  derivative order of B spline in each dimension
+            extrapolate: List[bool], whether the knots form a periodic domain for extrapolation
+            periodic: List[bool], whether the b-splines are periodic
+
+            Use tensor product of the basis as the multidimensional basis. The design matrix is the kron product in 2D.
+
+        Returns:
+
+        """
+        dim = eval_pts.shape[0]
+        design_matrix = cls.b_construct_1d_design_matrix(eval_pts[0], knots[0], degree[0],
+                                                         derivative[0], extrapolate[0], periodic[0]).todense()
+        # the shape of design matrix is (num of eval, num of basis)
+        # now do the tensor product with einsum.
+        for _dim in range(1, dim):
+            tmp_matrix = cls.b_construct_1d_design_matrix(eval_pts[_dim], knots[_dim], degree[_dim],
+                                                          derivative[_dim], extrapolate[_dim], periodic[_dim]).todense()
+            design_matrix = np.einsum('eb,ef->ebf', design_matrix, tmp_matrix)
+
+        return design_matrix
 
 
 # modified scipy's source code.
