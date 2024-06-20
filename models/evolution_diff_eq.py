@@ -26,15 +26,20 @@ class EvolutionDiffEq:
     Then ``sympy`` will parse the string into a Function.
     """
 
-    def __init__(self, func_str_real, func_str_complex=None):
-        self.model_lib = None
-        self.func_str_real = func_str_real
-        self.func_str_complex = func_str_complex
+    def __init__(self, funcs_list):
+        """
 
-        if func_str_complex is None:
-            self.complex = False
-        else:
+        Args:
+            funcs_list: A list of expression on RHS
+        """
+        self.model_lib = None
+        if len(funcs_list) == 2:
+            self.func_str_real = funcs_list[0]
+            self.func_str_complex = funcs_list[1]
             self.complex = True
+        else:
+            self.func_str_real = funcs_list[0]
+            self.complex = False
 
         self.base_repr_real = parse_mathematica(self.func_str_real)
         if self.complex:

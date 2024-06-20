@@ -12,21 +12,21 @@ Note that the x-axis is fixed as [0, 2 * pi], common initial condition.
 """
 # models
 models = {
-    'KdV-Burgers': EvolutionDiffEq('0.5 * D[D[u]] - u * D[u] - (1.0/6) * D[D[D[u]]]'),
-    'Kuramoto-Sivashinsky': EvolutionDiffEq('- D[D[u]] - 0.05 * D[D[D[D[u]]]] - 0.5 * D[u] * D[u]'),
-    'Ginzburg-Landau': EvolutionDiffEq('D[D[u]] - u*u*u + u'),
-    'FitzHugh–Nagumo': EvolutionDiffEq('D[D[u]] + u * u  - u*u*u'),
-    'Fisher-KPP': EvolutionDiffEq('D[D[u]] + u - u*u'),
-    'Zeldovich–Frank-Kamenetskii': EvolutionDiffEq('D[D[u]] + 0.5 * 20^2 * Exp[-20] * (u - u * u)  * Exp[20 * u]'),
-    'Sine-Gordon': EvolutionDiffEq('v',
-                                   'D[D[u]] - Sin[u]'),
-    'Swift-Hohenberg': EvolutionDiffEq('u - u * u * u - (2 * D[D[u]] + D[D[D[D[u]]]])'),
-    'Eikonal': EvolutionDiffEq('0.25 * D[D[u]] + Abs[D[u]]'),
-    'Porous Media': EvolutionDiffEq(' 3 * u * u *  D[D[u]] + 6 * u * D[u] * D[u]'),
-    'Nonlinear Schrodinger': EvolutionDiffEq('-0.5 * D[D[v]] + v*(u*u+v*v)',
-                                             '0.5 * D[D[u]]-(u*u+v*v)*u'),
-    'Phi 4': EvolutionDiffEq('v',
-                             'D[D[u]] - u + u*u*u')
+    'KdV-Burgers': EvolutionDiffEq(['0.5 * D[D[u]] - u * D[u] - (1.0/6) * D[D[D[u]]]']),
+    'Kuramoto-Sivashinsky': EvolutionDiffEq(['- D[D[u]] - 0.05 * D[D[D[D[u]]]] - 0.5 * D[u] * D[u]']),
+    'Ginzburg-Landau': EvolutionDiffEq(['D[D[u]] - u*u*u + u']),
+    'FitzHugh–Nagumo': EvolutionDiffEq(['D[D[u]] + u * u  - u*u*u']),
+    'Fisher-KPP': EvolutionDiffEq(['D[D[u]] + u - u*u']),
+    'Zeldovich–Frank-Kamenetskii': EvolutionDiffEq(['D[D[u]] + 0.5 * 20^2 * Exp[-20] * (u - u * u)  * Exp[20 * u]']),
+    'Sine-Gordon': EvolutionDiffEq(['v',
+                                   'D[D[u]] - Sin[u]']),
+    'Swift-Hohenberg': EvolutionDiffEq(['u - u * u * u - (2 * D[D[u]] + D[D[D[D[u]]]])']),
+    'Eikonal': EvolutionDiffEq(['0.25 * D[D[u]] + Abs[D[u]]']),
+    'Porous Media': EvolutionDiffEq([' 3 * u * u *  D[D[u]] + 6 * u * D[u] * D[u]']),
+    'Nonlinear Schrodinger': EvolutionDiffEq(['-0.5 * D[D[v]] + v*(u*u+v*v)',
+                                             '0.5 * D[D[u]]-(u*u+v*v)*u']),
+    'Phi 4': EvolutionDiffEq(['v',
+                             'D[D[u]] - u + u*u*u'])
 }
 
 # Initial condition and domain parameters
