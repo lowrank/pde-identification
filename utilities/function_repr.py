@@ -118,6 +118,9 @@ class FunctionRepr(object):
 
         """
         dim = eval_pts.shape[0]
+        if dim != 2:
+            raise NotImplementedError('Only (1 + 1) dimension is supported in current version.')
+
         design_matrix = cls.b_construct_1d_design_matrix(eval_pts[0], knots[0], degree[0],
                                                          derivative[0], extrapolate[0], periodic[0]).todense()
         # the shape of design matrix is (num of eval, num of basis)
@@ -126,6 +129,8 @@ class FunctionRepr(object):
             tmp_matrix = cls.b_construct_1d_design_matrix(eval_pts[_dim], knots[_dim], degree[_dim],
                                                           derivative[_dim], extrapolate[_dim], periodic[_dim]).todense()
             design_matrix = np.einsum('eb,ef->ebf', design_matrix, tmp_matrix)
+            # reshape into a matrix ebf -> eg: (eval_pts x num_of_basis)
+            design_matrix = np.reshape(design_matrix, (design_matrix.shape[0], -1))
 
         return design_matrix
 

@@ -5,13 +5,13 @@ Repository for **PDE Identification** with partial solution data.
 - [x] Solution generation
 - [ ] Identification
 
-## Experiment Requirements (Ubuntu)
+## Experiment Requirements
 ```bash
-pip install -r requirements.txt
-python setup.py build_ext -b utilities
-
 apt-get install build-essential
 apt-get install libfftw3-dev
+
+pip install -r requirements.txt
+python setup.py build_ext -b utilities
 ```
 
 ## Tests
