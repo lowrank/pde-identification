@@ -1,6 +1,6 @@
 import numpy as np
 import scipy.linalg as la
-from scipy.sparse import csr_array
+from scipy.sparse import csr_array, kron
 from scipy.sparse.linalg import lsqr
 from utilities import design_matrix
 
@@ -39,10 +39,10 @@ class FunctionRepr(object):
         if not periodic:
             return b
         else:
-            b_full = b.todense()
+            b_full = b.tolil()
             for n in range(degree):
-                b_full[:, n] = b_full[:, n] + b_full[:, n - degree]
-            return csr_array(b_full[:, :-degree])
+                b_full[:, n] = (b_full[:, n] + b_full[:, n - degree]).toarray()
+            return b_full[:, :-degree].tocsr()
 
     @classmethod
     def b_construct_null_space(cls, design_matrix=None):
@@ -87,14 +87,14 @@ class FunctionRepr(object):
             coefficient array of B spline basis.
 
         """
-        design_matrix = cls.b_construct_1d_design_matrix(x_val, knots, degree, 0, False, periodic).todense()
+        design_matrix = cls.b_construct_1d_design_matrix(x_val, knots, degree, 0, False, periodic)
         c1 = lsqr(design_matrix, y_val, atol=atol, btol=btol)[0]
         # regularization with derivative (degree + 1) // 2, the representer theorem implies the minimizer should be
         # a combination of splines exactly.
         if regularization:
-            null_space = cls.b_construct_null_space(design_matrix)
+            null_space = cls.b_construct_null_space(design_matrix.toarray())
             smooth_matrix = cls.b_construct_1d_design_matrix(colloq, knots, degree, (degree + 1) // 2,
-                                                             False, periodic).todense()
+                                                             False, periodic)
             c2 = lsqr(smooth_matrix @ null_space, -smooth_matrix @ c1, atol=atol, btol=btol)[0]
             c1 += null_space @ c2
         return c1
@@ -122,15 +122,13 @@ class FunctionRepr(object):
             raise NotImplementedError('Only (1 + 1) dimension is supported in current version.')
 
         design_matrix = cls.b_construct_1d_design_matrix(eval_pts[0], knots[0], degree[0],
-                                                         derivative[0], extrapolate[0], periodic[0]).todense()
+                                                         derivative[0], extrapolate[0], periodic[0])
         # the shape of design matrix is (num of eval, num of basis)
-        # now do the tensor product with einsum.
+        # now do the tensor product with kron.
         for _dim in range(1, dim):
             tmp_matrix = cls.b_construct_1d_design_matrix(eval_pts[_dim], knots[_dim], degree[_dim],
-                                                          derivative[_dim], extrapolate[_dim], periodic[_dim]).todense()
-            design_matrix = np.einsum('eb,ef->ebf', design_matrix, tmp_matrix)
-            # reshape into a matrix ebf -> eg: (eval_pts x num_of_basis)
-            design_matrix = np.reshape(design_matrix, (design_matrix.shape[0], -1))
+                                                          derivative[_dim], extrapolate[_dim], periodic[_dim])
+            design_matrix = kron(design_matrix, tmp_matrix)
 
         return design_matrix
 

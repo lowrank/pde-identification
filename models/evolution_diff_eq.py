@@ -1,11 +1,12 @@
 import os
-
 import numpy as np
 from scipy.integrate import odeint
 from sympy import Function, Derivative, latex
 from sympy.abc import *
 from sympy.parsing.mathematica import parse_mathematica
 from sympy.utilities.codegen import codegen
+import jinja2
+import subprocess
 
 
 class EvolutionDiffEq:
@@ -82,66 +83,43 @@ class EvolutionDiffEq:
         else:
             return self.math_repr.subs(u, func_u).doit()
 
-    def _dirty_codegen(self, filename="model.cpp"):
+    def _codegen(self, filename="model.cpp"):
         tmp_file = self.model_path + filename
+        template_loader = jinja2.FileSystemLoader(searchpath=os.path.dirname(os.path.abspath(__file__)))
+        template_env = jinja2.Environment(loader=template_loader)
+
         if self.complex:
             [(_, c_code), _] = \
                 codegen([('model_real', self.base_repr_real), ('model_complex', self.base_repr_complex)], 'C99',
                         'extra', header=False, empty=False)
-
-            header = r'#include "../../src/extra.h" ' + '\n'
-            source_real = ('extern "C"' + '\n' +
-                           'void model_real(double* a, double* b, double* c, long n)' +
-                           '{Vector u(n, true, a); Vector v(n, true, b);')
-            source_real += \
-                ''.join(c_code.replace('double', 'Vector').split('\n')[3:5])
-
-            source_real += r'memcpy(c, model_real_result._data, n * sizeof(scalar_t));}' + '\n'
-
-            source_complex = ('extern "C"' + '\n' +
-                              'void model_complex(double* a, double* b, double* c, long n)' +
-                              '{Vector u(n, true, a); Vector v(n, true, b);')
-            source_complex += \
-                ''.join(c_code.replace('double', 'Vector').split('\n')[8:10])
-
-            source_complex += r'memcpy(c, model_complex_result._data, n * sizeof(scalar_t));}'
-
-            source = header + source_real + source_complex
-
-            with open(tmp_file, "w") as source_file:
-                source_file.write(source)
-                source_file.close()
+            template = template_env.get_template('template_complex.cpp')
+            source = template.render(
+                model_real_code=''.join(c_code.replace('double', 'Vector').split('\n')[3:5]),
+                model_complex_code=''.join(c_code.replace('double', 'Vector').split('\n')[8:10])
+            )
         else:
             [(_, c_code), _] = \
                 codegen(('model', self.base_repr_real), 'C99', 'extra', header=False, empty=False)
+            template = template_env.get_template('template_real.cpp')
+            source = template.render(
+                model_code=''.join(c_code.replace('double', 'Vector').split('\n')[3:5])
+            )
 
-            header = r'#include "../../src/extra.h" ' + '\n'
-            source = 'extern "C"' + '\n' + 'void model(double* a, double* b, long n) {Vector u(n, true, a);'
-            source += \
-                ''.join(c_code.replace('double', 'Vector').split('\n')[3:5])
+        with open(tmp_file, "w") as source_file:
+            source_file.write(source)
 
-            source += r'memcpy(b, model_result._data, n * sizeof(scalar_t));}'
-
-            source = header + source
-
-            with open(tmp_file, "w") as source_file:
-                source_file.write(source)
-                source_file.close()
-
-    def _dirty_compile(self, filename="model.cpp", libname="model.so"):
+    def _compile(self, filename="model.cpp", libname="model.so"):
         tmp_file = self.model_path + filename
         tmp_lib = self.model_path + libname
         c_flags = '-shared -Ofast -march=native -std=gnu++11 -ffast-math'.split(' ')
         l_flags = '-lm -lfftw3'.split(' ')
 
         # Compile the code with g++.
-        import subprocess
-        # use subprocess.call to ensure the compiling is finished before running the rest.
         subprocess.call(["g++", tmp_file] + c_flags + ["-o", tmp_lib] + l_flags)
 
     def wrap(self, label="model"):
-        self._dirty_codegen(label + ".cpp")
-        self._dirty_compile(label + ".cpp", label + ".so")
+        self._codegen(label + ".cpp")
+        self._compile(label + ".cpp", label + ".so")
 
         self.model_lib = np.ctypeslib.load_library(label, self.model_path)
 
